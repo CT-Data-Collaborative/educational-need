@@ -1,7 +1,10 @@
 Educational Need
 
 [![Build Status](https://travis-ci.org/CT-Data-Collaborative/educational-need.svg?branch=master)](https://travis-ci.org/CT-Data-Collaborative/educational-need)
+
 Educational Need reports special services and accommodations provided to students by school districts.
+
+Data Source: <https://data.ct.gov/> has been deprecated and replaced with <http://edsight.ct.gov/SASPortal/main.do> (rev. 2017)
 
 ## License MIT
 

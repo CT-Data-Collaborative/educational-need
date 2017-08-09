@@ -18,6 +18,7 @@ ell_data <- dir(path_to_raw, recursive=T, pattern = "ell")
 lunch_data <- dir(path_to_raw, recursive=T, pattern = "lunch") 
 sped_data <- dir(path_to_raw, recursive=T, pattern = "edu") 
 
+#Create 3 indicator DFs
 ell_df <- data.frame(stringsAsFactors = F)
 for (i in 1:length(ell_data)) {
   current_ell_file <- read.csv(paste0(path_to_raw, "/", ell_data[i]), stringsAsFactors=F, header=F )
@@ -85,20 +86,26 @@ for (i in 1:length(sped_data)) {
 #Combine 3 indicators
 edu_need <- rbind(ell_df, lunch_df, sped_df)
 
+#Remove "Total" rows
 edu_need <- edu_need[edu_need$District != "Total",]
 
-#Calculate Percent Yes
+#Calculate Percent
 edu_need$Percent <- round((edu_need$Yes / edu_need$Total)*100, 1)
 
 edu_need <- edu_need %>% 
   select(District, Year, `Indicator of Educational Need`, Yes, Percent, Total)
 
-#Merge in FIPS, backfill districts, and years
+#Merge in FIPS, backfill districts, indicators, and years
 district_dp_URL <- 'https://raw.githubusercontent.com/CT-Data-Collaborative/ct-school-district-list/master/datapackage.json'
 district_dp <- datapkg_read(path = district_dp_URL)
 districts <- (district_dp$data[[1]])
 
-#backfill year
+#FIPS, districts
+edu_need_fips <- merge(edu_need, districts, by = "District", all=T)
+edu_need_fips$District <- NULL
+edu_need_fips<-edu_need_fips[!duplicated(edu_need_fips), ]
+
+#indicators, years
 years <- c("2011-2012",
            "2012-2013",
            "2013-2014",
@@ -106,7 +113,9 @@ years <- c("2011-2012",
            "2015-2016", 
            "2016-2017")
 
-indicator <- c("English Language Learner", "Eligible for Free or Reduced Price Lunch", "Special Education")
+indicator <- c("English Language Learner", 
+               "Eligible for Free or Reduced Price Lunch", 
+               "Special Education")
 
 backfill_years <- expand.grid(
   `FixedDistrict` = unique(districts$`FixedDistrict`),
@@ -114,15 +123,8 @@ backfill_years <- expand.grid(
   `Indicator of Educational Need` = indicator
 )
 
-edu_need_fips <- merge(edu_need, districts, by = "District", all=T)
-
-edu_need_fips$District <- NULL
-
-edu_need_fips<-edu_need_fips[!duplicated(edu_need_fips), ]
-
 backfill_years$FixedDistrict <- as.character(backfill_years$FixedDistrict)
 backfill_years$Year <- as.character(backfill_years$Year)
-
 backfill_years <- arrange(backfill_years, FixedDistrict)
 
 edu_need_fips_backfill <- merge(edu_need_fips, backfill_years, all=T)
@@ -146,36 +148,45 @@ edu_need_fips_backfill_long <- reshape(edu_need_fips_backfill,
 
 edu_need_fips_backfill_long$id <- NULL
 
+
+#Isolate Totals for "Total Students Evaluated" indicator
 totals <- edu_need_fips_backfill_long[edu_need_fips_backfill_long$`Measure Type` == "Total",]
-
 totals$`Indicator of Educational Need` <- "Total Students Evaluated"
-
 totals <- unique(totals)
 
-#Surgical removal of a duplicate total
+#Surgically remove a duplicate total
 totals <- totals[!(totals$Year == "2011-2012" & totals$FixedDistrict == "Department of Mental Health and Addiction Services" & is.na(totals$Value)),]
 
+#Strip out non-totals
 no_totals <- edu_need_fips_backfill_long[edu_need_fips_backfill_long$`Measure Type` != "Total",]
 
+#Combine again
 complete_edu_need <- rbind(no_totals, totals)
 
+#Assign Measure Type column
 complete_edu_need$`Measure Type`[complete_edu_need$`Measure Type` == "Yes"] <- "Number"
 complete_edu_need$`Measure Type`[complete_edu_need$`Measure Type` == "Total"] <- "Number"
 
+#Assign Variable column
 complete_edu_need$Variable <- "Indicator of Educational Need"
 
+#Select, rename, and sort columns
 complete_edu_need <- complete_edu_need %>% 
   select(FixedDistrict, FIPS, Year, Variable, `Indicator of Educational Need`, `Measure Type`, Value) %>% 
   rename(District = FixedDistrict) %>% 
   arrange(District, Year, `Indicator of Educational Need`, `Measure Type`)
 
+#Remove CT
 complete_edu_need <- complete_edu_need[complete_edu_need$District != "Connecticut",]
+
+#Convert NAs in FIPS column to blanks
+complete_edu_need$FIPS[is.na(complete_edu_need$FIPS)] <- ""
 
 write.table(
   complete_edu_need,
   file.path(getwd(), "data", "educational_need_2016-2017.csv"),
   sep = ",",
- # na = "-9999",
+  na = "-9999",
   row.names = F
 )
 

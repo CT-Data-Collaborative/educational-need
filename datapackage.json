@@ -21,7 +21,7 @@
   }],
   "contributor": [],
   "resources": [{
-    "path": "data/data.csv",
+    "path": "data/educational_need_2016-2017.csv",
     "format": "csv",
     "schema": {
       "fields": [{
@@ -39,12 +39,35 @@
         }, {
           "name": "Measure Type",
           "type": "string",
-          "dimension": true
+          "dimension": true,
+          "constraints": {
+			      "enum": [
+		          "Number", 
+		          "Percent"
+		        ]
+			    }
         }, {
           "name": "Variable",
           "type": "string",
-          "dimension": true
+          "dimension": true, 
+          "constraints": {
+		        "enum": [
+              "Indicator of Educational Need"
+            ]
+			    }
         }, {
+          "name": "Indicator of Educational Need",
+          "type": "string",
+          "dimension": true, 
+          "constraints": {
+		        "enum": [
+              "Special Education",		          
+              "English Language Learner", 
+              "Eligible for Free or Reduced Price Lunch", 
+              "Total Students Evaluated"
+            ]
+			    }
+        }, {          
           "name": "Value",
           "type": "number",
           "dimension": false
@@ -56,27 +79,27 @@
   "ckan_extras": {
     "full_description": {
       "ckan_name": "Full Description",
-      "value": "This dataset provides the number and proportion of students in each school district that recieve either Free or Reduced Price Meals, Special Education services, or are English Language Learners. This dataset also provides the total number of students for each district and year evaluated for these Indicators of Educational Need.",
+      "value": "This dataset provides counts and percentages of students in each district that are considered to have indicators of educational need. These indicators include being eligible for Free or Reduced Price Meals, receiving Special Education services, or are English Language Learners. This dataset also provides the total number of students for each district. Charter Districts have been entered as individual districts.",
       "type": "string"
     },
     "suppression": {
       "ckan_name": "Suppression",
-      "value": "",
+      "value": "Observations of 5 or fewer students have been suppressed.",
       "type": "string"
     },
     "technical_notes": {
       "ckan_name": "Technical Notes",
-      "value": "Technical notes for advanced users",
+      "value": "As of 2017, CTData has deprecated the previous data source (data.ct.gov) and has replaced it with EdSight. These indicators come from the Public Student Enrollment data sets, filtered by Free/Reduced Price Meal Eligibility, Special Education Status, and English Learner Status.",
       "type": "string"
     },
     "socrata": {
       "ckan_name": "Socrata",
-      "value": "False",,
+      "value": "False",
       "type": "string"
     },
     "socrata_url": {
       "ckan_name": "Socrata Dataset URL",
-      "value": "",,
+      "value": "",
       "type": "string"
     },
     "domain": {
@@ -89,6 +112,16 @@
       "value": "Student Demographics",
       "type": "string"
     },
+    "numerator": {
+      "ckan_name": "Numerator",
+      "value": "Number of students with a given educational need.",
+      "type": "string"
+    },    
+    "denominator": {
+      "ckan_name": "Denominator",
+      "value": "Total number of students for selected district and school year.",
+      "type": "string"
+    },       
     "geography": {
       "ckan_name": "Geography",
       "value": "District",
@@ -102,7 +135,7 @@
     },
     "years_in_catalog": {
       "ckan_name": "Years in Catalog",
-      "value": [],
+      "value": ["2011-2012", "2012-2013", "2013-2014", "2014-2015", "2015-2016", "2016-2017"],
       "type": "array"
     },
     "latest_year": {
@@ -123,11 +156,122 @@
         "Percent": "%"
       }
     },
-    "default": {}
+    "expected_number_of_geographies": {
+		  "ckan_name": "Expected Number of Unique Geographies",
+		  "value": 204,
+		  "type": "string"
+		},  
+    "default": {      
+      "ckan_name": "Default",
+			"value": {
+				"Measure Type": "Number",
+		 		"District": "Harford School District",
+		 		"Year": "2016-2017",
+		 		"Variable": "Indicator of Educational Need", 
+		 		"Indicator of Educational Need": ["Special Education", "English Language Learner", "Eligible for Free or Reduced Price Lunch", "Total Students Evaluated"]
+			},
+		  	"type": "object"
+    }  
   },
-  "spot_checks": [],
+  "spot_checks": [
+    {
+      "type": "$lookup",
+      "filter": {
+        "District": "New Haven School District",
+        "Year": "2011-2012",
+		 		"Variable": "Indicator of Educational Need",
+        "Indicator of Educational Need": "Special Education",        
+        "Measure Type": "Number"
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "int",
+        "value": 2281
+      } 
+    }, 
+    {
+      "type": "$lookup",
+      "filter": {
+        "District": "Barkhamsted School District",
+        "Year": "2012-2013",
+		 		"Variable": "Indicator of Educational Need",
+        "Indicator of Educational Need": "English Language Learner",        
+        "Measure Type": "Percent"
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "float",
+        "value": -9999
+      } 
+    },
+    {
+      "type": "$lookup",
+      "filter": {
+        "District": "Woodstock Academy District",
+        "Year": "2013-2014",
+		 		"Variable": "Indicator of Educational Need",
+        "Indicator of Educational Need": "Eligible for Free or Reduced Price Lunch",        
+        "Measure Type": "Percent"
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "float",
+        "value": 3.2
+      } 
+    },
+    {
+      "type": "$lookup",
+      "filter": {
+        "District": "Hartford School District",
+        "Year": "2014-2015",
+		 		"Variable": "Indicator of Educational Need",
+        "Indicator of Educational Need": "Total Students Evaluated",        
+        "Measure Type": "Number"
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "int",
+        "value": 21953
+      } 
+    },
+    {
+      "type": "$lookup",
+      "filter": {
+        "District": "Danbury School District",
+        "Year": "2015-2016",
+		 		"Variable": "Indicator of Educational Need",
+        "Indicator of Educational Need": "Special Education",        
+        "Measure Type": "Percent"
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "float",
+        "value": 12.5
+      } 
+    },
+    {
+      "type": "$lookup",
+      "filter": {
+        "District": "Achievement First Bridgeport Academy District",
+        "Year": "2016-2017",
+		 		"Variable": "Indicator of Educational Need",
+        "Indicator of Educational Need": "English Language Learner",        
+        "Measure Type": "Number"
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "int",
+        "value": 131
+      } 
+    }    
+  ],
   "dimension_groups": [
-    {"Measure Type": []},
-    {"Variable": []}
+    {
+      "Indicator of Educational Need": [
+        "Special Education", "Special Education", 
+        "English Language Learner", "English Language Learner",     
+        "Eligible for Free or Reduced Price Lunch", "Eligible for Free or Reduced Price Lunch", 
+        "Total Students Evaluated"]
+    }
   ]
 }
