@@ -164,11 +164,11 @@
     "default": {      
       "ckan_name": "Default",
 			"value": {
-				"Measure Type": "Number",
+				"Measure Type": "Percent",
 		 		"District": "Harford School District",
-		 		"Year": "2016-2017",
+		 		"Year": ["2014-2015", "2015-2016", "2016-2017"],
 		 		"Variable": "Indicator of Educational Need", 
-		 		"Indicator of Educational Need": ["Special Education", "English Language Learner", "Eligible for Free or Reduced Price Lunch", "Total Students Evaluated"]
+		 		"Indicator of Educational Need": ["Special Education", "English Language Learner", "Eligible for Free or Reduced Price Lunch"]
 			},
 		  	"type": "object"
     }  
