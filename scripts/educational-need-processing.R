@@ -111,7 +111,8 @@ years <- c("2011-2012",
            "2013-2014",
            "2014-2015",
            "2015-2016", 
-           "2016-2017")
+           "2016-2017", 
+           "2017-2018")
 
 indicator <- c("English Language Learner", 
                "Eligible for Free or Reduced Price Lunch", 
@@ -184,7 +185,7 @@ complete_edu_need$FIPS[is.na(complete_edu_need$FIPS)] <- ""
 
 write.table(
   complete_edu_need,
-  file.path(getwd(), "data", "educational_need_2016-2017.csv"),
+  file.path(getwd(), "data", "educational_need_2017-2018.csv"),
   sep = ",",
   na = "-9999",
   row.names = F

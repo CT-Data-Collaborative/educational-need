@@ -21,7 +21,7 @@
   }],
   "contributor": [],
   "resources": [{
-    "path": "data/educational_need_2016-2017.csv",
+    "path": "data/educational_need_2017-2018.csv",
     "format": "csv",
     "schema": {
       "fields": [{
@@ -75,7 +75,7 @@
       }
     }
   ],
-  "last_modified": "08/08/2017",
+  "last_modified": "06/26/2018",
   "ckan_extras": {
     "full_description": {
       "ckan_name": "Full Description",
@@ -84,7 +84,7 @@
     },
     "suppression": {
       "ckan_name": "Suppression",
-      "value": "Observations of 5 or fewer students have been suppressed.",
+      "value": "Disaggregations where either the numerator is less than 6 or the denominator is less than 20 are suppressed.",
       "type": "string"
     },
     "technical_notes": {
@@ -135,12 +135,12 @@
     },
     "years_in_catalog": {
       "ckan_name": "Years in Catalog",
-      "value": ["2011-2012", "2012-2013", "2013-2014", "2014-2015", "2015-2016", "2016-2017"],
+      "value": ["2011-2012", "2012-2013", "2013-2014", "2014-2015", "2015-2016", "2016-2017", "2017-2018"],
       "type": "array"
     },
     "latest_year": {
       "ckan_name": "Latest Year Available",
-      "value": "2016-2017",
+      "value": "2017-2018",
       "type": "string"
     },
     "disabled_views": {
@@ -165,8 +165,8 @@
       "ckan_name": "Default",
 			"value": {
 				"Measure Type": "Percent",
-		 		"District": "Harford School District",
-		 		"Year": ["2014-2015", "2015-2016", "2016-2017"],
+		 		"District": "Hartford School District",
+		 		"Year": ["2015-2016", "2016-2017", "2017-2018"],
 		 		"Variable": "Indicator of Educational Need", 
 		 		"Indicator of Educational Need": ["Special Education", "English Language Learner", "Eligible for Free or Reduced Price Lunch"]
 			},
@@ -263,15 +263,36 @@
         "number type": "int",
         "value": 131
       } 
+    },
+    {
+      "type": "$lookup",
+      "filter": {
+        "District": "East Hampton School District",
+        "Year": "2017-2018",
+		 		"Variable": "Indicator of Educational Need",
+        "Indicator of Educational Need": "Eligible for Free or Reduced Price Lunch",        
+        "Measure Type": "Percent"
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "float",
+        "value": 11.9
+      } 
     }    
   ],
   "dimension_groups": [
     {
-      "Indicator of Educational Need": [
-        "Special Education", "Special Education", 
-        "English Language Learner", "English Language Learner",     
-        "Eligible for Free or Reduced Price Lunch", "Eligible for Free or Reduced Price Lunch", 
-        "Total Students Evaluated"]
+      "Measure Type": ["Number"],
+      "Indicator of Educational Need": ["Special Education", 
+                                        "English Language Learner", 
+                                        "Eligible for Free or Reduced Price Lunch", 
+                                        "Total Students Evaluated"]
+    }, 
+    {
+      "Measure Type": ["Percent"],
+      "Indicator of Educational Need": ["Special Education", 
+                                        "English Language Learner", 
+                                        "Eligible for Free or Reduced Price Lunch"]
     }
   ]
 }
